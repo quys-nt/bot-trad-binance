@@ -1,0 +1,31 @@
+# Bảo mật: không commit API key
+keys.py
+
+# Trạng thái rủi ro (có thể chứa thông tin tài khoản)
+risk_state.json
+
+# Zalo bot state & commands
+zalo_state.json
+bot_commands.json
+
+# Log & DB local
+bot.log
+trades.db
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/

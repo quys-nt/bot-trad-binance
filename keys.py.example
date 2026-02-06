@@ -1,0 +1,11 @@
+# -*- coding: utf-8 -*-
+# Đổi tên file này thành keys.py và điền API key của bạn.
+# KHÔNG commit keys.py vào git. Thêm "keys.py" vào .gitignore.
+#
+# Trên Binance: API Management → Create API
+# - Chỉ bật: Enable Futures
+# - KHÔNG bật: Enable Withdrawals
+# - Nếu có thể: bật Restrict access to trusted IPs only
+
+api = "your_api_key_here"
+secret = "your_api_secret_here"

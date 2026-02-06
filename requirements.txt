@@ -1,0 +1,13 @@
+# Bot trading (bắt buộc)
+pandas>=1.3.0
+ta>=0.10.0
+binance-futures-connector>=4.0.0
+
+# Telegram / Discord (tùy chọn - chỉ cần nếu dùng notify)
+requests>=2.25.0
+
+# Dashboard (tùy chọn - chỉ cần nếu chạy dashboard.py)
+streamlit>=1.0.0
+
+# Zalo Bot webhook server (tùy chọn - chỉ cần nếu dùng zalo_bot_server.py)
+flask>=2.0.0
