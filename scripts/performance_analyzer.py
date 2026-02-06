@@ -147,7 +147,7 @@ def print_report():
     print(f"   Win Rate: {win_rate:.2f}% | Tổng PnL: {total_pnl:.3f} USDT")
     metrics = calculate_risk_metrics(trades)
     if metrics:
-        print("\n⚠️ RỦI RO: Sharpe", metrics['sharpe_ratio']:.3f, "| P/L ratio", metrics['profit_loss_ratio']:.2f)
+        print(f"\n⚠️ RỦI RO: Sharpe {metrics['sharpe_ratio']:.3f} | P/L ratio {metrics['profit_loss_ratio']:.2f}")
     by_symbol = analyze_by_symbol()
     if by_symbol:
         sorted_symbols = sorted(by_symbol.items(), key=lambda x: x[1]['total_pnl'], reverse=True)[:10]

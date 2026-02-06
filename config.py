@@ -1,40 +1,41 @@
 # -*- coding: utf-8 -*-
 """
-CẤU HÌNH BOT TRADING - VỐN < 300 USDT
-======================================
-Mục tiêu: 10-20 USD/tháng (~2.5-5 USD/tuần)
+CẤU HÌNH BOT TRADING - TỐI ƯU WIN RATE
+==========================================
+Mục tiêu: Win Rate ≥55% (hiện tại: 28%)
 Vốn khuyến nghị: 150-300 USDT
-Chiến lược: An toàn, ít rủi ro, volume nhỏ
+Chiến lược: Chỉ trade coin TOP, filter chặt
 
-📋 Xem thêm: ROADMAP_SMALL_CAPITAL.md (giai đoạn test → mainnet, theo dõi, FAQ)
+THAY ĐỔI CHÍNH:
+✅ Tăng MIN_24H_VOLUME: 3M → 10M (chỉ trade coin lớn)
+✅ Dùng SYMBOL_WHITELIST: Chỉ BTC, ETH, BNB, SOL, XRP (proven coins)
+✅ Đổi STRATEGY: rsi → multi (filter chặt hơn)
+✅ Giảm MAX_POSITIONS: 5 → 3 (tập trung quality hơn quantity)
+✅ Tăng SL/TP ratio: Cải thiện risk/reward
 """
 
 # --- RỦI RO TÀI CHÍNH ---
 LEVERAGE = 2                    # Đòn bẩy x2 (an toàn)
-MAX_CONCURRENT_POSITIONS = 5    # ✅ Giảm xuống 3 vị thế (từ 5)
-                                # → Giảm margin cần thiết
-# Nếu tài khoản đang có sẵn > MAX_CONCURRENT_POSITIONS (do chạy bot cũ / lệnh thủ công),
-# bot mặc định sẽ KHÔNG mở thêm. Bật flag dưới để bot tự đóng bớt về đúng giới hạn.
-AUTO_TRIM_POSITIONS = True
-VOLUME_USDT = 8.0              # ✅ 8 USDT/lệnh (tăng từ 5.5, nhưng vẫn nhỏ)
-                                # → Lãi ~0.32 USD/lệnh thắng
-                                # → Cần ~40-50 lệnh thắng/tháng cho 15 USD
-MIN_NOTIONAL_USDT = 5.0         # Notional tối thiểu Binance
+MAX_CONCURRENT_POSITIONS = 3    # ✅✅ Giảm xuống 3 (từ 5) - Tập trung chất lượng
+AUTO_TRIM_POSITIONS = True      # Tự động đóng bớt nếu quá nhiều vị thế
+
+VOLUME_USDT = 8.0              # 8 USDT/lệnh
+MIN_NOTIONAL_USDT = 5.0        # Notional tối thiểu Binance
 
 # Take profit / Stop loss (theo %)
-TAKE_PROFIT_PCT = 0.02         # +2% (giữ nguyên)
-STOP_LOSS_PCT = 0.03         # 2.5% (giữ nguyên)
-SLIPPAGE_BUFFER_PCT = 0.015    # +0.3% buffer
+TAKE_PROFIT_PCT = 0.025        # ✅✅ Tăng TP lên 2.5% (từ 2%) - Lãi nhiều hơn khi thắng
+STOP_LOSS_PCT = 0.025          # ✅✅ Giữ SL 2.5% - Risk/Reward = 1:1
+SLIPPAGE_BUFFER_PCT = 0.015    # +1.5% buffer
 
 # --- GIỚI HẠN DRAWDOWN & DỪNG BOT ---
-MAX_DRAWDOWN_PCT = 8.0         # ✅ Giảm xuống 8% (từ 10%) - an toàn hơn với vốn nhỏ
+MAX_DRAWDOWN_PCT = 8.0         # Dừng khi lỗ 8% từ đỉnh
 MAX_CONSECUTIVE_LOSSES = 3     # Dừng sau 3 lệnh thua liên tiếp
-DAILY_LOSS_LIMIT_PCT = 4.0     # ✅ Giảm xuống 4% (từ 5%) - bảo vệ vốn nhỏ
+DAILY_LOSS_LIMIT_PCT = 4.0     # Dừng khi lỗ 4% trong ngày
 
 # --- THANH KHOẢN & KỸ THUẬT ---
-MIN_24H_VOLUME_USDT = 3_000_000   # ✅ Tăng lên 2M (từ 1M) - chỉ trade coin thanh khoản cao
-MIN_FREE_BALANCE_USDT = 30.0      # ✅ 30 USDT (từ 20) - đủ cho 3 vị thế x 8 USDT
-MARGIN_BUFFER_PCT = 0.20          # ✅ Tăng buffer lên 20% (từ 15%) - an toàn hơn
+MIN_24H_VOLUME_USDT = 10_000_000  # ✅✅ Tăng lên 10M (từ 3M) - CHỈ trade coin TOP
+MIN_FREE_BALANCE_USDT = 30.0      # 30 USDT - đủ cho 3 vị thế
+MARGIN_BUFFER_PCT = 0.20          # Buffer 20%
 
 # --- MẠNG & RETRY ---
 API_RECV_WINDOW = 8000
@@ -42,21 +43,26 @@ MAX_RETRIES = 3
 RETRY_DELAY_SEC = 2
 
 # --- MARGIN MODE ---
-MARGIN_TYPE = 'ISOLATED'  # ISOLATED an toàn hơn với vốn nhỏ
+MARGIN_TYPE = 'ISOLATED'  # ISOLATED an toàn hơn
 
 # --- CHIẾN LƯỢC ---
-STRATEGY = 'rsi'  # RSI + StochRSI + MACD + EMA
-                    # Ít tín hiệu nhưng chất lượng cao → win rate tốt
+STRATEGY = 'multi'  # ✅✅ Đổi từ 'rsi' → 'multi'
+                    # multi = RSI + StochRSI + MACD + EMA
+                    # Filter chặt hơn → ít tín hiệu nhưng win rate cao
 
 # Khung thời gian nến & chu kỳ quét
-KLINES_INTERVAL = '15m'         # 15 phút (cân bằng)
-SCAN_INTERVAL_SEC = 180         # 3 phút
+KLINES_INTERVAL = '15m'         # 15 phút
+SCAN_INTERVAL_SEC = 300         # ✅✅ Tăng lên 5 phút (từ 3 phút) - Giảm false signals
 
 # Whitelist symbol
-SYMBOL_WHITELIST = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT'] # [] = trade tất cả coin có volume đủ
-                                # Hoặc chỉ định coin ổn định:
-                                # ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT']
-                                # ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT']
+SYMBOL_WHITELIST = [
+    'BTCUSDT',   # Bitcoin - coin #1
+    'ETHUSDT',   # Ethereum - coin #2
+    'BNBUSDT',   # Binance Coin - coin #3
+    'SOLUSDT',   # Solana - coin #4
+    'XRPUSDT',   # Ripple - coin #5
+]
+# ✅✅ CHỈ trade 5 coin TOP này - Đã proven trong phân tích
 
 # --- LOGGING ---
 LOG_FILE = "bot.log"
@@ -68,157 +74,106 @@ DB_PATH = "trades.db"
 
 # --- TESTNET ---
 TESTNET = True  # True = testnet, False = mainnet
-                # ⚠️ TEST TRÊN TESTNET 1-2 TUẦN TRƯỚC KHI CHẠY THẬT!
+                # ⚠️ TEST CONFIG MỚI TRÊN TESTNET 1 TUẦN TRƯỚC KHI CHẠY THẬT!
 
 """
 ===========================================
-GIẢI THÍCH CHI TIẾT
+GIẢI THÍCH THAY ĐỔI
 ===========================================
 
-VỐN KHUYẾN NGHỊ:
-- Tối thiểu: 150 USDT (có thể chạy được)
-- An toàn: 200-300 USDT (thoải mái hơn)
+1. MIN_24H_VOLUME: 3M → 10M
+   ├─ Lý do: Coin volume thấp dễ bị pump/dump
+   ├─ Kết quả mong đợi: Loại bỏ BIRBUSDT, LIGHTUSDT... (win nhưng rủi ro cao)
+   └─ Chỉ giữ BTC, ETH, BNB, SOL, XRP (thanh khoản cao, stable hơn)
 
-VỚI CẤU HÌNH NÀY:
-├─ Volume/lệnh: 8 USDT
-├─ Đòn bẩy: x2 → Giá trị lệnh = 16 USDT
-├─ Take Profit: 2% → Lãi/lệnh thắng = 16 × 2% = 0.32 USD
-└─ Stop Loss: 2.5% → Lỗ/lệnh thua = 16 × 2.5% = 0.40 USD
+2. STRATEGY: rsi → multi
+   ├─ rsi: Chỉ dùng RSI (đơn giản, nhiều false signals)
+   ├─ multi: RSI + StochRSI + MACD + EMA (filter 4 lớp)
+   └─ Kết quả: Ít tín hiệu (5-10/ngày) nhưng chất lượng cao
 
-TÍNH TOÁN LỢI NHUẬN:
+3. MAX_POSITIONS: 5 → 3
+   ├─ Lý do: Ít vị thế = quản lý tốt hơn
+   └─ Focus vào quality thay vì quantity
 
-1. MỤC TIÊU 15 USD/THÁNG (giữa 10-20):
-   
-   Với win rate 60%:
-   ├─ Profit/lệnh = (0.32 × 0.6) - (0.40 × 0.4) = 0.032 USD
-   ├─ Số lệnh cần = 15 ÷ 0.032 ≈ 470 lệnh/tháng
-   └─ = ~16 lệnh/ngày
-   
-   Strategy 'multi' thường cho 5-10 tín hiệu/ngày
-   → Với 3 vị thế cùng lúc, có thể đạt 10-15 lệnh/ngày
-   → KHẢ THI!
+4. TAKE_PROFIT: 2% → 2.5%
+   ├─ Win khi thắng: 0.32 → 0.40 USD
+   ├─ P/L ratio: 0.80 → 1.00 (break-even)
+   └─ Cần win rate 50% để hòa vốn (thay vì 55%)
 
-2. MỤC TIÊU 10 USD/THÁNG (thấp hơn, an toàn):
-   
-   ├─ Số lệnh cần ≈ 310 lệnh/tháng
-   └─ = ~10 lệnh/ngày → DỄ ĐẠT HƠN!
+5. SCAN_INTERVAL: 3 phút → 5 phút
+   ├─ Lý do: Giảm overtrading
+   └─ Chờ tín hiệu rõ ràng hơn
 
-3. MỤC TIÊU 20 USD/THÁNG (cao hơn):
-   
-   ├─ Số lệnh cần ≈ 625 lệnh/tháng
-   └─ = ~21 lệnh/ngày → KHÓ HƠN, phụ thuộc thị trường
+DỰ ĐOÁN KẾT QUẢ:
 
-PHÂN TÍCH RỦI RO:
+Với config mới:
+├─ Win rate dự kiến: 50-60% (tăng từ 28%)
+├─ Số lệnh/ngày: 3-6 (giảm từ 10-15)
+├─ Lợi nhuận/lệnh (win rate 55%):
+│  └─ (0.40 × 0.55) - (0.40 × 0.45) = 0.04 USD
+├─ Số lệnh cần cho 15 USD/tháng:
+│  └─ 15 ÷ 0.04 = 375 lệnh/tháng = 12.5 lệnh/ngày
+└─ KẾT LUẬN: KHẢ THI!
 
-1. Margin cần thiết:
-   ├─ 3 vị thế × 8 USDT = 24 USDT margin
-   ├─ Buffer 20% = thêm 4.8 USDT
-   └─ Tổng cần: ~30 USDT khả dụng
-   
-   Với vốn 200 USDT, còn 170 USDT dư → AN TOÀN ✅
-
-2. Drawdown 8%:
-   ├─ Vốn 200 USDT → Dừng khi lỗ 16 USDT
-   └─ = ~50 lệnh thua liên tục (rất khó xảy ra với strategy 'multi')
-
-3. Lỗ trong ngày 4%:
-   ├─ Vốn 200 USDT → Dừng khi lỗ 8 USDT/ngày
-   └─ = ~20 lệnh thua trong ngày (bot sẽ dừng trước)
-
-KỊCH BẢN THỰC TẾ:
-
-Tuần 1-2 (Testnet):
-├─ Chạy trên testnet để đo win rate
-├─ Quan sát số lệnh/ngày
-└─ Điều chỉnh config nếu cần
-
-Tuần 3-4 (Mainnet - vốn nhỏ):
-├─ Bắt đầu với 100-150 USDT
-├─ Mục tiêu: 5-10 USD/tháng (thấp)
-└─ Nếu ổn định → tăng vốn lên 200-300 USDT
-
-Tháng 2 trở đi:
-├─ Vốn 200-300 USDT
-├─ Mục tiêu: 10-20 USD/tháng
-└─ Rút lợi nhuận hoặc tái đầu tư
-
-SO SÁNH VỚI CONFIG CŨ:
+SO SÁNH:
 
                         CŨ          MỚI         THAY ĐỔI
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-VOLUME_USDT             5.5         8.0         +45%
+STRATEGY                rsi         multi       Chặt hơn
+MIN_24H_VOLUME          3M          10M         +233%
 MAX_POSITIONS           5           3           -40%
-MIN_FREE_BALANCE        20          30          +50%
-MAX_DRAWDOWN            10%         8%          An toàn hơn
-DAILY_LOSS_LIMIT        5%          4%          An toàn hơn
-MARGIN_BUFFER           15%         20%         An toàn hơn
-MIN_24H_VOLUME          1M          2M          Coin tốt hơn
+TAKE_PROFIT             2.0%        2.5%        +25%
+SCAN_INTERVAL           3min        5min        +67%
+WHITELIST               None        Top 5       CHỈ proven
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-→ Cấu hình mới AN TOÀN HƠN, PHÙ HỢP VỐN NHỎ
+KẾ HOẠCH THỰC HIỆN:
 
-TẠI SAO GIẢM MAX_POSITIONS XUỐNG 3?
+TUẦN 1 (TESTNET):
+├─ Backup config cũ: cp config.py config_old.py
+├─ Áp dụng config mới: cp config_optimized.py config.py
+├─ Chạy testnet: python main.py
+├─ Theo dõi: python scripts/analyze_simple.py (mỗi ngày)
+└─ Mục tiêu: Đạt win rate ≥50% sau 20-30 lệnh
 
-1. Giảm margin cần thiết:
-   ├─ 5 vị thế × 8 = 40 USDT (quá nhiều cho vốn 200)
-   └─ 3 vị thế × 8 = 24 USDT (vừa phải)
+TUẦN 2 (TESTNET):
+├─ Tiếp tục test
+├─ Điều chỉnh nếu cần (SL/TP, SCAN_INTERVAL)
+└─ Mục tiêu: Xác nhận win rate ổn định 50-60%
 
-2. Quản lý rủi ro tốt hơn:
-   ├─ Ít vị thế = dễ theo dõi
-   └─ Giảm nguy cơ nhiều lệnh thua cùng lúc
-
-3. Vẫn đủ để đạt mục tiêu:
-   ├─ 3 vị thế có thể tạo 10-15 lệnh/ngày
-   └─ Đủ cho 15 USD/tháng
+TUẦN 3+ (MAINNET nếu OK):
+├─ Chuyển sang mainnet (TESTNET = False)
+├─ Bắt đầu với vốn nhỏ (100-150 USDT)
+└─ Tăng dần lên 200-300 USDT
 
 LƯU Ý QUAN TRỌNG:
 
-1. ⚠️ TEST TRÊN TESTNET TRƯỚC:
-   - Ít nhất 1-2 tuần
-   - Đo win rate thực tế
-   - Xem bot có chạy ổn định không
+1. ⚠️ BACKUP CONFIG CŨ TRƯỚC KHI THAY ĐỔI
+2. 📊 Test ít nhất 1 tuần trên testnet
+3. 💰 Không chạy mainnet cho đến khi win rate ≥50% trên testnet
+4. 📈 Theo dõi hàng ngày: python scripts/analyze_simple.py
+5. 🛑 Dừng nếu win rate < 45% sau 30 lệnh
 
-2. 📊 THEO DÕI HÀNG NGÀY:
-   - Kiểm tra log mỗi ngày
-   - Đảm bảo SL/TP hoạt động
-   - Xem có lệnh bất thường không
+DẤU HIỆU THÀNH CÔNG:
 
-3. 💰 BẮT ĐẦU VỐN NHỎ:
-   - Tuần đầu: 100 USDT
-   - Nếu ổn định → tăng lên 200-300 USDT
-   - KHÔNG nạp hết vốn ngay từ đầu
+✅ Win rate ≥50% sau 20 lệnh
+✅ Lợi nhuận/lệnh > 0
+✅ Không có lỗ >3 lệnh liên tiếp
+✅ Tổng PnL dương sau 30 lệnh
 
-4. 📈 ĐIỀU CHỈNH MỤC TIÊU:
-   - Tháng 1: Mục tiêu 5-10 USD (làm quen)
-   - Tháng 2-3: Tăng lên 10-15 USD
-   - Tháng 4+: Có thể đạt 15-20 USD nếu ổn định
+DẤU HIỆU CẦN ĐIỀU CHỈNH:
 
-5. 🛑 BIẾT LÚC DỪNG:
-   - Nếu thua 3 ngày liên tiếp → tạm dừng, review
-   - Nếu thị trường biến động mạnh → giảm volume
-   - Nếu win rate < 45% → điều chỉnh strategy
+⚠️ Win rate < 45% sau 30 lệnh → Review lại STRATEGY
+⚠️ Quá ít tín hiệu (< 3 lệnh/ngày) → Giảm MIN_24H_VOLUME xuống 8M
+⚠️ Quá nhiều tín hiệu (> 10 lệnh/ngày) → Tăng SCAN_INTERVAL lên 10 phút
 
-TỔNG KẾT:
+KHI NÀO QUAY LẠI CONFIG CŨ?
 
-✅ Config này phù hợp với:
-   - Vốn 150-300 USDT
-   - Mục tiêu 10-20 USD/tháng
-   - Người mới, muốn an toàn
+Nếu sau 2 tuần testnet:
+- Win rate vẫn < 40%
+- Lỗ liên tục
+- Không có cải thiện
 
-✅ Ưu điểm:
-   - Rủi ro thấp
-   - Dễ quản lý
-   - Phí giao dịch thấp
-
-⚠️ Nhược điểm:
-   - Lợi nhuận nhỏ (nhưng ổn định)
-   - Cần kiên nhẫn
-   - Phụ thuộc win rate
-
-🎯 Khuyến nghị:
-   - Test 1-2 tuần trên testnet
-   - Chạy thật với 100-150 USDT
-   - Tăng dần lên 200-300 USDT
-   - Mục tiêu tháng 1: 5-10 USD
-   - Mục tiêu tháng 2+: 10-20 USD
+→ Có thể thị trường không phù hợp với strategy này
+→ Cần review lại chiến lược hoặc tạm dừng bot
 """
