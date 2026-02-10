@@ -127,24 +127,46 @@ def get_tickers_usdt():
 
 
 def get_tickers_filtered():
-    """Lọc theo volume 24h và whitelist."""
+    """Lọc theo volume 24h và whitelist. Loại trừ coin đặc biệt."""
     base = get_tickers_usdt()
     out = []
-    # Whitelist
+    
+    # 1. Whitelist
     if cf.SYMBOL_WHITELIST:
         base = [s for s in base if s in cf.SYMBOL_WHITELIST]
-    # Loại trừ
-    base = [s for s in base if s not in ("USDCUSDT",)]
-    # Lọc volume 24h (nếu API có)
+        log.info("Áp dụng whitelist: %s → %s", len(get_tickers_usdt()), len(base))
+    
+    # 2. Blacklist (QUAN TRỌNG - Loại BTCDOMUSDT)
+    BLACKLIST = (
+        "USDCUSDT",
+        "BTCDOMUSDT",    # ← FIX: Thêm dòng này!
+        "BTCSTUSDT",
+        "ETHBTCUSDT",
+        "DEFIUSDT",
+    )
+    before = len(base)
+    base = [s for s in base if s not in BLACKLIST]
+    if len(base) < before:
+        log.info("Loại bỏ %s coin trong blacklist", before - len(base))
+    
+    # 3. Lọc volume (FIX exception handling)
     try:
         resp = _api_retry(client.ticker_24hr_price_change)
         vol_map = {e["symbol"]: float(e.get("quoteVolume") or 0) for e in resp if "symbol" in e}
         for s in base:
             if vol_map.get(s, 0) >= cf.MIN_24H_VOLUME_USDT:
                 out.append(s)
-    except Exception:
-        out = base  # Không có 24h thì bỏ qua lọc volume
-    return out if out else base
+    except Exception as e:
+        log.warning("Lỗi volume: %s - Dùng whitelist only", e)
+        out = base
+    
+    # 4. Logging
+    if not out:
+        log.warning("KHÔNG CÓ SYMBOL! Check config.")
+    else:
+        log.info("Kết quả: %s symbols - %s", len(out), out)
+    
+    return out
 
 
 def klines(symbol):
